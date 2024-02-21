@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 
 export async function createRoom() {
     try {
@@ -10,12 +10,9 @@ export async function createRoom() {
 }
 
 export async function checkRoom(roomId: string) {
-    try {
-        const response = await axios.post("http://localhost:8000/check-room", {
+    return axios.post("http://localhost:8000/check-room", {
             roomId,
-        });
-        console.log(response);
-    } catch (error){
-        throw error;
-    }
+    }).catch((error) => {
+        throw error.response.data;
+    });
 }

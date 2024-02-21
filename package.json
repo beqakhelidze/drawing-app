@@ -12,6 +12,8 @@
     "concurrently": "^8.0.1"
   },
   "dependencies": {
+    "@heroicons/react": "^2.1.1",
+    "password-generator": "^2.3.2",
     "sass": "^1.62.1"
   }
 }

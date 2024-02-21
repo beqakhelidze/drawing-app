@@ -3,14 +3,17 @@ import { useCallback, useState } from "react";
 
 interface UseToastInterface {
     isToastOpen: boolean;
-    showToast: () => void;
+    showToast: (test:string) => void;
+    toastText: string;
 }
 
 const useToast = (): UseToastInterface => {
     const [isToastOpen, setToastOpen] = useState(false);
     const [timer, setTimer] = useState<NodeJS.Timeout | null>(null);
+    const [toastText ,setToastText] = useState("")
 
-    const showToast = useCallback(() => {
+    const showToast = useCallback((text:string) => {
+        setToastText(text);
         setToastOpen(true);
 
         if (timer !== null) {
@@ -25,7 +28,7 @@ const useToast = (): UseToastInterface => {
         setTimer(newTimer);
     }, [timer]);
 
-    return { isToastOpen, showToast };
+    return { isToastOpen, showToast, toastText };
 };
 
 export default useToast;

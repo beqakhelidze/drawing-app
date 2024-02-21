@@ -1,6 +1,6 @@
 import "react-bootstrap-range-slider/dist/react-bootstrap-range-slider.css";
 import { useDraw } from "@/hooks/useDraw";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ColorResult } from "react-color";
 import { HexColorPicker } from "react-colorful";
 import dynamic from "next/dynamic";
@@ -20,7 +20,7 @@ const DrawingBoard = () => {
     const { canvasRef, onMouseDown, clear } = useDraw(createLine);
     const [color, setColor] = useState<string>("#000");
     const [lineWidth, setLineWidth] = useState(3);
-    const [socket, setSocket] = useState<Socket | null>(null);
+    const socket = useRef<Socket | null>(null);
     const searchParams = useSearchParams();
     const roomId = searchParams.get("roomId");
     const [partnersMouses, setPartnerMouses] = useState<
@@ -29,18 +29,18 @@ const DrawingBoard = () => {
 
     useEffect(() => {
         if (!roomId) return;
-        const socket = io(`http://localhost:8000`, {
+        const WS = io(`http://localhost:8000`, {
             query: {
                 roomId,
             },
         });
         const ctx = canvasRef.current?.getContext("2d");
-        socket.connect();
-        socket.on("connect", () => {
+        WS.connect();
+        WS.on("connect", () => {
             console.log("Socket connected");
         });
 
-        socket.on("draw.line", ({id, line}) => {
+        WS.on("draw.line", ({id, line}) => {
             setPartnerMouses([
                 {
                     x: line.currentPoint.x,
@@ -51,21 +51,21 @@ const DrawingBoard = () => {
             drawLine({ ...line, ctx });
         });
 
-        socket.on("clear", clear);
+        WS.on("clear", clear);
 
-        socket.on('disconnect', () => {
+        WS.on('disconnect', () => {
             console.log('socket disconnected');
         })
 
-        setSocket(socket);
+        socket.current = WS;
         return () => {
-            socket.disconnect();
+            WS.disconnect();
         };
-    }, [canvasRef, clear, roomId]);
+    }, [canvasRef, clear, roomId, socket]);
 
     function createLine(line: Draw) {
-        if (socket === null) return;
-        socket.emit("draw.line", {
+        if (socket.current === null) return;
+        socket.current.emit("draw.line", {
             roomId,
             line: { color, lineWidth, ...line },
         });
@@ -73,8 +73,8 @@ const DrawingBoard = () => {
     }
 
     function clearCanvas() {
-        if (socket === null) return;
-        socket.emit("clear", { roomId });
+        if (socket.current === null) return;
+        socket.current.emit("clear", { roomId });
         clear();
     }
 
