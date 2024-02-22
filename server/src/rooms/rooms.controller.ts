@@ -4,8 +4,10 @@ import {
   Post,
   Body,
   BadRequestException,
+  ValidationPipe,
 } from '@nestjs/common';
 import { RoomsService } from './rooms.service';
+import { CreateRoomDto } from './dto/create-room.dto';
 
 @Controller('')
 export class RoomsController {
@@ -16,16 +18,17 @@ export class RoomsController {
     return this.roomsService.getRooms();
   }
 
-  @Get('create-room')
-  createRoom(): { roomId: string } {
-    return this.roomsService.createRoom();
+  @Post('create-room')
+  createRoom(@Body(ValidationPipe) createRoomDto: CreateRoomDto) {
+    console.log(createRoomDto);
+    return this.roomsService.createRoom(createRoomDto);
   }
 
-  @Post('check-room')
-  checkRoom(@Body() { roomId }: { roomId: string }) {
-    if (roomId.length === 0) {
-      throw new BadRequestException('Please provide room ID!');
-    }
-    return this.roomsService.checkRoomIsAvailable(roomId);
-  }
+  // @Post('check-room')
+  // checkRoom(@Body() { roomId }: { roomId: string }) {
+  //   if (roomId.length === 0) {
+  //     throw new BadRequestException('Please provide room ID!');
+  //   }
+  //   return this.roomsService.checkRoomIsAvailable(roomId);
+  // }
 }

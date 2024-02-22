@@ -49,8 +49,8 @@ const Main = () => {
   };
 
   return (
-    <div className="flex justify-center w-1/4 min-w-96 items-center h-screen">
-      <div className="p-6 shadow-md max-w-screen-md w-10/12 min-h-[350px]  bg-zinc-200 flex justify-center items-center flex-col">
+    <div className="flex justify-center min-w-96 items-center h-screen">
+      <div className="p-6 shadow-md max-w-screen-md w-12/12 min-h-[350px]  bg-zinc-200 flex justify-center items-center flex-col">
         <div className="flex space-x-4">
           <button
             className={`rounded py-2 px-4 text-white ${
