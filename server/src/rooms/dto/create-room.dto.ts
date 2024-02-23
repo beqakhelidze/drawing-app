@@ -4,9 +4,13 @@ import {
   IsOptional,
   IsString,
   ValidateIf,
+  isString,
 } from 'class-validator';
 
 export class CreateRoomDto {
+  @IsString()
+  name: string;
+
   @IsNumber()
   maxUsers: number;
 

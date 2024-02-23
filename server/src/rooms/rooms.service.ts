@@ -18,12 +18,13 @@ export class RoomsService {
 
   createRoom(createRoomDto: CreateRoomDto) {
     const id = uuidv4();
+    console.log(createRoomDto.password);
     const newRoom = {
       id,
       maxUsers: createRoomDto.maxUsers,
       users: [],
       secured: createRoomDto.secured,
-      password: createRoomDto.password,
+      password: createRoomDto.secured ? createRoomDto.password : undefined,
     };
     this.rooms.push(newRoom);
     return { id };
