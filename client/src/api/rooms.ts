@@ -9,23 +9,25 @@ export async function createRoom(
 ) {
   try {
     const response = await axios.post("http://localhost:8000/create-room", {
-      roomName,
+      name:roomName,
       maxUsers,
       secured,
       password,
     });
-    return response.data.roomId;
+    return response.data;
   } catch (error) {
-    return errorHandler(error as AxiosError | Error);
+    throw errorHandler(error as AxiosError | Error);
   }
 }
 
-export async function checkRoom(roomId: string) {
-  return axios
-    .post("http://localhost:8000/check-room", {
-      roomId,
-    })
-    .catch((error) => {
-      throw error.response.data;
+export async function joinRoom(roomId: string, password: string = "") {
+  try {
+    const response = await axios.post("http://localhost:8000/join-room", {
+      id:roomId,
+      password:password,
     });
+    return response.data;
+  } catch (error) {
+    throw errorHandler(error as AxiosError | Error);
+  }
 }

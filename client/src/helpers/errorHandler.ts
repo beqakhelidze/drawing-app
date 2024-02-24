@@ -8,7 +8,7 @@ function errorHandler(error: AxiosError | Error) {
       return {
         status: error.response.status,
         data: error.response.data,
-        message: error.response.data.message,
+        message: typeof(error.response.data.message) === 'object' ? error.response.data.message[0] : error.response.data.message,
       };
     } else {
       return {

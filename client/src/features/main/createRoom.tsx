@@ -3,8 +3,7 @@ import { useState } from "react";
 import { FingerPrintIcon, UserIcon } from "@heroicons/react/24/solid";
 import { createRoom } from "@/api/rooms";
 import { useRouter } from "next/navigation";
-import { toast } from 'react-toastify';
-
+import { toast } from "react-toastify";
 
 const CreateRoom = () => {
   const router = useRouter();
@@ -25,16 +24,12 @@ const CreateRoom = () => {
 
   const handleCreateRoomClick = async () => {
     createRoom(roomName, maxUsers, isSecured, password)
-      .then((id: string) => {
-        console.log(id);
-        // router.push(id);
+      .then((data: { id: string; token: string }) => {
+        localStorage.setItem("token", data.token);
+        router.push(data.id);
       })
       .catch((error) => {
-        console.log(error.message);
-      })
-      .finally(() => {
-        const notify = () => toast.success("Form submitted successfully!");
-        notify();
+        toast.error(error.message);
       });
   };
 
@@ -42,7 +37,7 @@ const CreateRoom = () => {
     <div className="w-52 flex flex-col items-center	">
       <input
         type="text"
-        id="first_name"
+        id="create-name"
         className="bg-gray-50 border mt-8 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
         placeholder="Enter room name"
         autoComplete="off"
@@ -78,7 +73,7 @@ const CreateRoom = () => {
         </button>
         <input
           type="text"
-          id="bedrooms-input"
+          id="max-users-input"
           data-input-counter
           data-input-counter-min="1"
           data-input-counter-max="5"
@@ -123,7 +118,7 @@ const CreateRoom = () => {
       <div className="flex items-center mb-4 mt-4">
         <input
           type="checkbox"
-          id="passwordProtection"
+          id="password-protection"
           className="mr-2"
           checked={isSecured}
           onChange={togglePasswordProtection}
