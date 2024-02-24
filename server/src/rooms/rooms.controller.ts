@@ -8,6 +8,7 @@ import {
 } from '@nestjs/common';
 import { RoomsService } from './rooms.service';
 import { CreateRoomDto } from './dto/create-room.dto';
+import { JoinRoomDto } from './dto/join-room.dto';
 
 @Controller('')
 export class RoomsController {
@@ -20,15 +21,11 @@ export class RoomsController {
 
   @Post('create-room')
   createRoom(@Body(ValidationPipe) createRoomDto: CreateRoomDto) {
-    console.log(createRoomDto);
     return this.roomsService.createRoom(createRoomDto);
   }
 
-  // @Post('check-room')
-  // checkRoom(@Body() { roomId }: { roomId: string }) {
-  //   if (roomId.length === 0) {
-  //     throw new BadRequestException('Please provide room ID!');
-  //   }
-  //   return this.roomsService.checkRoomIsAvailable(roomId);
-  // }
+  @Post('join-room')
+  joinRoom(@Body(ValidationPipe) joinRoomDto: JoinRoomDto) {
+    return this.roomsService.joinRoomRequest(joinRoomDto);
+  }
 }
