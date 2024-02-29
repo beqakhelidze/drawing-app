@@ -29,9 +29,19 @@ export class RoomsService {
   }
 
   createRoom(createRoomDto: CreateRoomDto) {
+    const existingRoom = this.rooms.find(
+      (room) => room.name === createRoomDto.name,
+    );
+    if (existingRoom) {
+      throw new BadRequestException(
+        `Room with name ${createRoomDto.name} already exists`,
+      );
+    }
+
     const id = uuidv4();
     const newRoom = {
       id,
+      name: createRoomDto.name,
       maxUsers: createRoomDto.maxUsers,
       users: [],
       secured: createRoomDto.secured,
@@ -39,7 +49,7 @@ export class RoomsService {
     };
     this.rooms.push(newRoom);
     const token = this.generateRoomToken(id);
-    return { id, token };
+    return { id, token, name: newRoom.name };
   }
 
   joinRoomRequest(joinRoomDto: JoinRoomDto) {
@@ -54,6 +64,64 @@ export class RoomsService {
     }
     const token = this.generateRoomToken(room.id);
     return { id: room.id, token };
+  }
+
+  addClientInRoom(room: Room, clientId: string) {
+    // Check if the client is already in the room
+    console.log(room);
+    const clientExists = room.users.some((user) => user.id === clientId);
+
+    if (clientExists) {
+      throw new BadRequestException(
+        `Client with ID ${clientId} is already in the room`,
+      );
+    }
+
+    // Add the client to the room's users list
+    room.users.push({
+      id: clientId,
+      nickname: 'default',
+    });
+  }
+
+  removeClientFromRoom(clientId: string): void {
+    const roomContainingUser = this.rooms.find((room) =>
+      room.users.some((u) => u.id === clientId),
+    );
+
+    if (!roomContainingUser) {
+      throw new NotFoundException(
+        `Room with ID ${roomContainingUser.id} not found`,
+      );
+    }
+
+    const index = roomContainingUser.users.findIndex(
+      (user) => user.id === clientId,
+    );
+
+    if (index === -1) {
+      throw new NotFoundException(
+        `Client with ID ${clientId} is not in the room`,
+      );
+    }
+
+    roomContainingUser.users.splice(index, 1);
+  }
+
+  authorizeRoomConnection(roomId: string, token: string, clientId: string) {
+    const room = this.getRoomById(roomId);
+
+    if (!room) {
+      throw new NotFoundException(`Room with ID ${roomId} not found`);
+    }
+
+    const decodedRoomId = this.verifyRoomToken(token, secretKey);
+    if (!decodedRoomId) {
+      throw new BadRequestException('Invalid token');
+    }
+
+    this.addClientInRoom(room, clientId);
+    return room.name;
   }
 
   generateRoomToken(roomId: string): string {

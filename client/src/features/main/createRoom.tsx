@@ -24,7 +24,7 @@ const CreateRoom = () => {
 
   const handleCreateRoomClick = async () => {
     createRoom(roomName, maxUsers, isSecured, password)
-      .then((data: { id: string; token: string }) => {
+      .then((data: { id: string; token: string}) => {
         localStorage.setItem("token", data.token);
         router.push(data.id);
       })

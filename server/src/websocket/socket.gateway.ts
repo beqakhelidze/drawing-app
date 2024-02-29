@@ -24,22 +24,30 @@ export class SocketGateway implements OnGatewayConnection {
 
   handleConnection(client: Socket) {
     const roomId = client.handshake.query.roomId as string;
-    const clientId = client.id;
-    // this.roomService
-    //   .checkRoomIsAvailable(roomId)
-    //   .then(() => {
-    //     this.roomService.joinRoom(roomId, clientId);
-    //     client.join(roomId);
-    //     console.log('client joined', roomId);
-    //   })
-    //   .catch(() => {
-    //     client.disconnect();
-    //   });
+    const token = client.handshake.query.token as string;
+
+    try {
+      const roomName = this.roomService.authorizeRoomConnection(
+        roomId,
+        token,
+        client.id,
+      );
+      client.emit('authorized', roomName);
+      client.join(roomId);
+    } catch (error) {
+      console.log(error.message);
+      client.emit('unauthorized');
+      client.disconnect();
+    }
   }
 
   handleDisconnect(client: Socket) {
     const clientId = client.id;
-    // this.roomService.removeClientFromRoom(clientId);
+    try {
+      this.roomService.removeClientFromRoom(clientId);
+    } catch (error) {
+      console.log(error.message);
+    }
   }
 
   sendDrawLineInRoomExceptSender(

@@ -10,6 +10,8 @@ import { useSearchParams } from "next/navigation";
 import RangeSlider from "react-bootstrap-range-slider";
 import Cursor from "../../assets/cursor.svg";
 import Image from "next/image";
+import useSubscribeSocket from "@/hooks/useSubscribeSocket";
+import useSocketStore from "@/store/useSocketStore";
 
 const SketchPicker = dynamic(
     () => import("react-color").then((mod) => mod.SketchPicker),
@@ -20,52 +22,31 @@ const DrawingBoard = () => {
     const { canvasRef, onMouseDown, clear } = useDraw(createLine);
     const [color, setColor] = useState<string>("#000");
     const [lineWidth, setLineWidth] = useState(3);
-    const socket = useRef<Socket | null>(null);
+    const socket = useSocketStore(state => state.socket)
     const searchParams = useSearchParams();
     const roomId = searchParams.get("roomId");
+    const roomName = searchParams.get("roomName");
     const [partnersMouses, setPartnerMouses] = useState<
         (Point & { partnerId: string })[]
     >([]);
+    const ctx = canvasRef.current?.getContext("2d");
 
-    useEffect(() => {
-        if (!roomId) return;
-        const WS = io(`http://localhost:8000`, {
-            query: {
-                roomId,
+    useSubscribeSocket("draw.line", ({id, line}) => {
+        setPartnerMouses([
+            {
+                x: line.currentPoint.x,
+                y: line.currentPoint.y,
+                partnerId: id,
             },
-        });
-        const ctx = canvasRef.current?.getContext("2d");
-        WS.connect();
-        WS.on("connect", () => {
-            console.log("Socket connected");
-        });
+        ]);
+        drawLine({ ...line, ctx });
+    })
 
-        WS.on("draw.line", ({id, line}) => {
-            setPartnerMouses([
-                {
-                    x: line.currentPoint.x,
-                    y: line.currentPoint.y,
-                    partnerId: id,
-                },
-            ]);
-            drawLine({ ...line, ctx });
-        });
-
-        WS.on("clear", clear);
-
-        WS.on('disconnect', () => {
-            console.log('socket disconnected');
-        })
-
-        socket.current = WS;
-        return () => {
-            WS.disconnect();
-        };
-    }, [canvasRef, clear, roomId, socket]);
+    useSubscribeSocket("clear", clear)
 
     function createLine(line: Draw) {
-        if (socket.current === null) return;
-        socket.current.emit("draw.line", {
+        if (socket === null) return;
+        socket.emit("draw.line", {
             roomId,
             line: { color, lineWidth, ...line },
         });
@@ -73,8 +54,8 @@ const DrawingBoard = () => {
     }
 
     function clearCanvas() {
-        if (socket.current === null) return;
-        socket.current.emit("clear", { roomId });
+        if (socket === null) return;
+        socket.emit("clear", { roomId });
         clear();
     }
 
