@@ -8,6 +8,7 @@ import { Room } from './interfaces/room.interface';
 import { CreateRoomDto } from './dto/create-room.dto';
 import { JoinRoomDto } from './dto/join-room.dto';
 import * as jwt from 'jsonwebtoken';
+import { LineDto } from 'src/websocket/socket.dto';
 
 const secretKey = 'pizdec';
 
@@ -46,6 +47,7 @@ export class RoomsService {
       users: [],
       secured: createRoomDto.secured,
       password: createRoomDto.secured ? createRoomDto.password : undefined,
+      lines: [],
     };
     this.rooms.push(newRoom);
     const token = this.generateRoomToken(id);
@@ -54,6 +56,7 @@ export class RoomsService {
 
   joinRoomRequest(joinRoomDto: JoinRoomDto) {
     const room = this.getRoomById(joinRoomDto.id);
+
     if (room.secured) {
       if (!joinRoomDto.password) {
         throw new BadRequestException('Password is required');
@@ -68,7 +71,6 @@ export class RoomsService {
 
   addClientInRoom(room: Room, clientId: string) {
     // Check if the client is already in the room
-    console.log(room);
     const clientExists = room.users.some((user) => user.id === clientId);
 
     if (clientExists) {
@@ -111,6 +113,9 @@ export class RoomsService {
   authorizeRoomConnection(roomId: string, token: string, clientId: string) {
     const room = this.getRoomById(roomId);
 
+    if (room.maxUsers === room.users.length) {
+      throw new BadRequestException('Room is already full');
+    }
     if (!room) {
       throw new NotFoundException(`Room with ID ${roomId} not found`);
     }
@@ -121,7 +126,15 @@ export class RoomsService {
     }
 
     this.addClientInRoom(room, clientId);
-    return room.name;
+    return {
+      roomName: room.name,
+      lines: room.lines,
+    };
+  }
+
+  addnewLineInRoom(roomId: string, line: LineDto) {
+    const room = this.getRoomById(roomId);
+    room.lines.push(line);
   }
 
   generateRoomToken(roomId: string): string {

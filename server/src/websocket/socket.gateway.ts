@@ -27,13 +27,9 @@ export class SocketGateway implements OnGatewayConnection {
     const token = client.handshake.query.token as string;
 
     try {
-      const roomName = this.roomService.authorizeRoomConnection(
-        roomId,
-        token,
-        client.id,
-      );
-      client.emit('authorized', roomName);
-      client.join(roomId);
+      this.roomService.authorizeRoomConnection(roomId, token, client.id);
+
+      client.emit('authorized');
     } catch (error) {
       console.log(error.message);
       client.emit('unauthorized');
@@ -56,6 +52,7 @@ export class SocketGateway implements OnGatewayConnection {
     line: LineDto,
   ) {
     const id = socket.id;
+    this.roomService.addnewLineInRoom(roomId, line);
     socket.broadcast.to(roomId).emit('draw.line', { id, line });
   }
 

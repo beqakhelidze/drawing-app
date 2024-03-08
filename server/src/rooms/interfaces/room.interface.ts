@@ -1,3 +1,4 @@
+import { LineDto } from 'src/websocket/socket.dto';
 import { User } from './user.interface';
 
 export interface Room {
@@ -7,4 +8,5 @@ export interface Room {
   users: User[];
   secured: boolean;
   password?: string;
+  lines: LineDto[];
 }
