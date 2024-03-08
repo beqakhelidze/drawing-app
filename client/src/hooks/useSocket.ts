@@ -26,14 +26,13 @@ const useSocket = (
     });
 
     WS.on("authorized", () => {
-      console.log("authorized")
-      setSocket(WS, "kargia");
+      setSocket(WS);
       setAuthorized(true);
       setLoading(false);
     });
 
     WS.on("unauthorized", () => {
-      console.log('unauthorized');  
+      console.log('unauthorized'); 
       setLoading(false);
     });
 

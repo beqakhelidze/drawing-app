@@ -3,17 +3,14 @@ import { create } from "zustand";
 
 interface SocketStore {
   socket: null | Socket;
-  roomName: null | string;
-  setSocket: (socket: Socket, roomName: string) => void;
+  setSocket: (socket: Socket) => void;
 }
 
 const useSocketStore = create<SocketStore>((set) => ({
   socket: null,
-  roomName: null,
-  setSocket: (socket, roomName) => {
+  setSocket: (socket) => {
     set({
-      socket,
-      roomName,
+      socket
     });
   },
 }));

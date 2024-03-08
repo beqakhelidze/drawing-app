@@ -31,3 +31,13 @@ export async function joinRoom(roomId: string, password: string = "") {
     throw errorHandler(error as AxiosError | Error);
   }
 }
+
+
+export async function getRoomData () {
+  try {
+    const response = await axios.post("http://localhost:8000/room");
+    return response.data;
+  } catch (error) {
+    throw errorHandler(error as AxiosError | Error);
+  }
+}
