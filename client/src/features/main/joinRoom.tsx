@@ -1,4 +1,4 @@
-import { joinRoom } from "@/api/rooms";
+import RoomsService from "@/api/rooms";
 import router from "next/router";
 import { useState } from "react";
 import { toast } from "react-toastify";
@@ -8,7 +8,7 @@ const JoinRoom = () => {
   const [password, setPassword] = useState("");
 
   const handleJoinRoomClick = async () => {
-    joinRoom(roomId, password)
+    RoomsService.joinRoom(roomId, password)
       .then((data: { id: string; token: string }) => {
         localStorage.setItem("token", data.token);
         router.push(data.id);

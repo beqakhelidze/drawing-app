@@ -12,6 +12,7 @@ import Cursor from "../../assets/cursor.svg";
 import Image from "next/image";
 import useSubscribeSocket from "@/hooks/useSubscribeSocket";
 import useSocketStore from "@/store/useSocketStore";
+import roomService from "@/api/rooms";
 
 const SketchPicker = dynamic(
   () => import("react-color").then((mod) => mod.SketchPicker),
@@ -37,6 +38,7 @@ const DrawingBoard = () => {
   }, [roomId]);
 
   useSubscribeSocket("draw.line", ({ id, line }) => {
+    console.log('shamavedi');
     setPartnerMouses([
       {
         x: line.currentPoint.x,
@@ -65,7 +67,11 @@ const DrawingBoard = () => {
   }
 
   useEffect(() => {
-    
+    roomService.getRoomData().then((data) => {
+      console.log(data);
+    }).catch(error => {
+      console.log(error);
+    });
   },[]);
 
   return (

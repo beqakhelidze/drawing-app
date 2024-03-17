@@ -1,5 +1,6 @@
 import ToastProvider from "@/providers/toastProvider";
 import "@/styles/globals.css";
+import "../libs/axios";
 import type { AppProps } from "next/app";
 import Head from "next/head";
 

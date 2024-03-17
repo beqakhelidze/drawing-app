@@ -9,13 +9,14 @@ import { CreateRoomDto } from './dto/create-room.dto';
 import { JoinRoomDto } from './dto/join-room.dto';
 import * as jwt from 'jsonwebtoken';
 import { LineDto } from 'src/websocket/socket.dto';
-
-const secretKey = 'pizdec';
+import { AuthService } from 'src/auth/auth.service';
 
 @Injectable()
 export class RoomsService {
   //this can be asked
   private rooms: Room[] = [];
+
+  constructor(private readonly authService: AuthService) {}
 
   getRooms() {
     return this.rooms;
@@ -50,7 +51,7 @@ export class RoomsService {
       lines: [],
     };
     this.rooms.push(newRoom);
-    const token = this.generateRoomToken(id);
+    const token = this.authService.generateToken(id);
     return { id, token, name: newRoom.name };
   }
 
@@ -65,7 +66,7 @@ export class RoomsService {
         throw new BadRequestException('Password is wrong');
       }
     }
-    const token = this.generateRoomToken(room.id);
+    const token = this.authService.generateToken(room.id);
     return { id: room.id, token };
   }
 
@@ -120,7 +121,7 @@ export class RoomsService {
       throw new NotFoundException(`Room with ID ${roomId} not found`);
     }
 
-    const decodedRoomId = this.verifyRoomToken(token, secretKey);
+    const decodedRoomId = this.authService.verifyToken(token);
     if (!decodedRoomId) {
       throw new BadRequestException('Invalid token');
     }
@@ -135,19 +136,5 @@ export class RoomsService {
   addnewLineInRoom(roomId: string, line: LineDto) {
     const room = this.getRoomById(roomId);
     room.lines.push(line);
-  }
-
-  generateRoomToken(roomId: string): string {
-    const token = jwt.sign({ roomId }, secretKey);
-    return token;
-  }
-
-  verifyRoomToken(token: string, secretKey: string): string | null {
-    try {
-      const decodedToken = jwt.verify(token, secretKey) as { roomId: string };
-      return decodedToken.roomId;
-    } catch (error) {
-      return null;
-    }
   }
 }

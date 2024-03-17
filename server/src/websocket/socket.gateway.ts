@@ -53,15 +53,16 @@ export class SocketGateway implements OnGatewayConnection {
   ) {
     const id = socket.id;
     this.roomService.addnewLineInRoom(roomId, line);
+    console.log('egaa: ', roomId);
     socket.broadcast.to(roomId).emit('draw.line', { id, line });
   }
 
   @SubscribeMessage('draw.line')
   handleMessage(
-    @MessageBody() Body: { roomId: string; line: LineDto },
+    @MessageBody() body: { roomId: string; line: LineDto },
     @ConnectedSocket() socket: Socket,
   ) {
-    this.sendDrawLineInRoomExceptSender(socket, Body.roomId, Body.line);
+    this.sendDrawLineInRoomExceptSender(socket, body.roomId, body.line);
   }
 
   @SubscribeMessage('clear')

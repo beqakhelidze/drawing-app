@@ -1,7 +1,7 @@
 import passwordGenerator from "password-generator";
 import { useState } from "react";
 import { FingerPrintIcon, UserIcon } from "@heroicons/react/24/solid";
-import { createRoom } from "@/api/rooms";
+import RoomsService from "@/api/rooms";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 
@@ -23,7 +23,7 @@ const CreateRoom = () => {
   };
 
   const handleCreateRoomClick = async () => {
-    createRoom(roomName, maxUsers, isSecured, password)
+    RoomsService.createRoom(roomName, maxUsers, isSecured, password)
       .then((data: { id: string; token: string}) => {
         localStorage.setItem("token", data.token);
         router.push(data.id);
