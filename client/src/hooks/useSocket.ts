@@ -26,6 +26,7 @@ const useSocket = (
     });
 
     WS.on("authorized", () => {
+      console.log("authorized");
       setSocket(WS);
       setAuthorized(true);
       setLoading(false);

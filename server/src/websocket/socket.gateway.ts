@@ -28,7 +28,7 @@ export class SocketGateway implements OnGatewayConnection {
 
     try {
       this.roomService.authorizeRoomConnection(roomId, token, client.id);
-
+      client.join(roomId);
       client.emit('authorized');
     } catch (error) {
       console.log(error.message);
@@ -53,7 +53,6 @@ export class SocketGateway implements OnGatewayConnection {
   ) {
     const id = socket.id;
     this.roomService.addnewLineInRoom(roomId, line);
-    console.log('egaa: ', roomId);
     socket.broadcast.to(roomId).emit('draw.line', { id, line });
   }
 

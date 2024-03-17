@@ -26,7 +26,7 @@ const DrawingBoard = () => {
   const socket = useSocketStore((state) => state.socket);
   const searchParams = useSearchParams();
   const roomId = searchParams.get("roomId");
-  const roomName = searchParams.get("roomName");
+  const [roomName, setRoomName] = useState("");
   const [partnersMouses, setPartnerMouses] = useState<
     (Point & { partnerId: string })[]
   >([]);
@@ -38,7 +38,6 @@ const DrawingBoard = () => {
   }, [roomId]);
 
   useSubscribeSocket("draw.line", ({ id, line }) => {
-    console.log('shamavedi');
     setPartnerMouses([
       {
         x: line.currentPoint.x,
@@ -46,6 +45,7 @@ const DrawingBoard = () => {
         partnerId: id,
       },
     ]);
+    console.log(line);
     drawLine({ ...line, ctx });
   });
 
@@ -67,12 +67,18 @@ const DrawingBoard = () => {
   }
 
   useEffect(() => {
-    roomService.getRoomData().then((data) => {
-      console.log(data);
+
+    if (!ctx) return;
+    roomService.getRoomData().then((roomData) => {
+      setRoomName(roomData.name);
+      roomData.lines.forEach((line) => {
+        console.log(line);
+        drawLine({ ...line, ctx });
+      })
     }).catch(error => {
       console.log(error);
     });
-  },[]);
+  },[ctx]);
 
   return (
     <>

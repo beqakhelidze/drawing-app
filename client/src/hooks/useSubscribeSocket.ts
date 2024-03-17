@@ -13,6 +13,7 @@ const useSubscribeSocket = (
 
 
 	useEffect(() => {
+		console.log(subscriptionName);
 		socket?.on(subscriptionName, (payload: unknown) => {
 			callbackRef.current(payload);
 		});
